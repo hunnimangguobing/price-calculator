@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>售價試算小工具</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      text-align: center;
+      color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+    }
+
+    .unit {
+      position: absolute;
+      right: 0.75rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .result-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-top: 1.25rem;
+      text-align: center;
+    }
+
+    .result-title {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .result-price {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>售價試算小工具</h1>
+
+    <!-- 1. 輸入目標收入 -->
+    <div class="form-group">
+      <label for="income">想要收到的收入</label>
+      <div class="input-wrapper">
+        <input type="number" id="income" placeholder="請輸入金額" value="1000">
+        <span class="unit">元</span>
+      </div>
+    </div>
+
+    <!-- 2. 輸入手續費率 -->
+    <div class="form-group">
+      <label for="fee-rate">手續費率 (%)</label>
+      <div class="input-wrapper">
+        <input type="number" id="fee-rate" step="0.1" placeholder="例：3.5" value="3.5">
+        <span class="unit">%</span>
+      </div>
+    </div>
+
+    <!-- 試算結果顯示區 -->
+    <div class="result-box">
+      <div class="result-title">應該設定的售價 (無條件進位)</div>
+      <div class="result-price" id="final-price">0 元</div>
+    </div>
+
+    <button class="btn" onclick="copyPrice()">複製售價金額</button>
+  </div>
+
+  <script>
+    const incomeInput = document.getElementById('income');
+    const feeRateInput = document.getElementById('fee-rate');
+    const finalPriceEl = document.getElementById('final-price');
+
+    function calculate() {
+      const income = parseFloat(incomeInput.value) || 0;
+      const rate = (parseFloat(feeRateInput.value) || 0) / 100;
+
+      if (rate >= 1) {
+        finalPriceEl.textContent = '費率錯誤';
+        return;
+      }
+
+      // 情況 A 公式：收入 / (1 - 費率)，並無條件進位到整數
+      const price = Math.ceil(income / (1 - rate));
+      finalPriceEl.textContent = `${price.toLocaleString()} 元`;
+    }
+
+    function copyPrice() {
+      const text = finalPriceEl.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('已複製售價：' + text);
+      });
+    }
+
+    [incomeInput, feeRateInput].forEach(input => {
+      input.addEventListener('input', calculate);
+    });
+
+    // 初始化計算一次
+    calculate();
+  </script>
+</body>
+</html>
