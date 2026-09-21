@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>跨境代購定價計算器</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --primary: #059669;
+      --primary-hover: #047857;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      text-align: center;
+      color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 0.9rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+    }
+
+    .unit {
+      position: absolute;
+      right: 0.75rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .result-box {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-top: 1.25rem;
+      text-align: center;
+    }
+
+    .result-title {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .result-price {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .breakdown-list {
+      font-size: 0.825rem;
+      color: var(--muted);
+      border-top: 1px dashed #a7f3d0;
+      padding-top: 0.75rem;
+      text-align: left;
+    }
+
+    .breakdown-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.25rem;
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>代購定價計算器</h1>
+
+    <!-- 1. 商品原價 (外幣) -->
+    <div class="form-group">
+      <label for="price-foreign">商品原價 (外幣)</label>
+      <div class="input-wrapper">
+        <input type="number" id="price-foreign" step="any" placeholder="請輸入外幣原價" value="10000">
+        <span class="unit">外幣</span>
+      </div>
+    </div>
+
+    <!-- 2. 匯率 -->
+    <div class="form-group">
+      <label for="exchange-rate">匯率 (多少外幣可換 1 台幣)</label>
+      <div class="input-wrapper">
+        <input type="number" id="exchange-rate" step="any" placeholder="例：40 (日圓/韓元) 或 0.22" value="40">
+        <span class="unit">匯率</span>
+      </div>
+    </div>
+
+    <!-- 3. 國際運費 (元/公斤) -->
+    <div class="form-group">
+      <label for="shipping-rate">國際運費 (單價/公斤)</label>
+      <div class="input-wrapper">
+        <input type="number" id="shipping-rate" step="any" placeholder="請輸入每公斤運費" value="200">
+        <span class="unit">元/kg</span>
+      </div>
+    </div>
+
+    <!-- 4. 重量 (公斤) -->
+    <div class="form-group">
+      <label for="weight">商品重量</label>
+      <div class="input-wrapper">
+        <input type="number" id="weight" step="0.01" placeholder="例：0.5" value="0.5">
+        <span class="unit">kg</span>
+      </div>
+    </div>
+
+    <!-- 5. 利潤 -->
+    <div class="form-group">
+      <label for="profit">預期利潤</label>
+      <div class="input-wrapper">
+        <input type="number" id="profit" step="any" placeholder="請輸入利潤金額" value="150">
+        <span class="unit">元</span>
+      </div>
+    </div>
+
+    <!-- 計算結果 display -->
+    <div class="result-box">
+      <div class="result-title">建議銷售定價 (無條件進位)</div>
+      <div class="result-price" id="final-price">0 元</div>
+
+      <div class="breakdown-list">
+        <div class="breakdown-item">
+          <span>折合台幣成本：</span>
+          <span id="base-cost-tw">$0</span>
+        </div>
+        <div class="breakdown-item">
+          <span>估算國際運費：</span>
+          <span id="shipping-cost">$0</span>
+        </div>
+        <div class="breakdown-item">
+          <span>預估設定利潤：</span>
+          <span id="profit-val">$0</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="copyResult()">複製定價與明細</button>
+  </div>
+
+  <script>
+    const priceForeignInput = document.getElementById('price-foreign');
+    const exchangeRateInput = document.getElementById('exchange-rate');
+    const shippingRateInput = document.getElementById('shipping-rate');
+    const weightInput = document.getElementById('weight');
+    const profitInput = document.getElementById('profit');
+
+    const finalPriceEl = document.getElementById('final-price');
+    const baseCostTwEl = document.getElementById('base-cost-tw');
+    const shippingCostEl = document.getElementById('shipping-cost');
+    const profitValEl = document.getElementById('profit-val');
+
+    function calculate() {
+      const foreignPrice = parseFloat(priceForeignInput.value) || 0;
+      const rate = parseFloat(exchangeRateInput.value) || 0;
+      const shippingRate = parseFloat(shippingRateInput.value) || 0;
+      const weight = parseFloat(weightInput.value) || 0;
+      const profit = parseFloat(profitInput.value) || 0;
+
+      if (rate <= 0) {
+        finalPriceEl.textContent = '匯率錯誤';
+        baseCostTwEl.textContent = '$0';
+        shippingCostEl.textContent = '$0';
+        profitValEl.textContent = '$0';
+        return;
+      }
+
+      // 1. 商品折合台幣 = 原價 / 匯率
+      const baseCostTW = foreignPrice / rate;
+
+      // 2. 運費 = 運費單價 * 重量
+      const shippingCost = shippingRate * weight;
+
+      // 3. 總金額 = 折合台幣 + 運費 + 利潤
+      const rawTotalPrice = baseCostTW + shippingCost + profit;
+
+      // 4. 無條件進位到整數
+      const finalPrice = Math.ceil(rawTotalPrice);
+
+      finalPriceEl.textContent = `${finalPrice.toLocaleString()} 元`;
+      baseCostTwEl.textContent = `$${Math.round(baseCostTW).toLocaleString()}`;
+      shippingCostEl.textContent = `$${Math.round(shippingCost).toLocaleString()}`;
+      profitValEl.textContent = `$${Math.round(profit).toLocaleString()}`;
+    }
+
+    function copyResult() {
+      const priceText = finalPriceEl.textContent;
+      const copyText = `預估報價：${priceText}`;
+      navigator.clipboard.writeText(copyText).then(() => {
+        alert('已複製：' + copyText);
+      });
+    }
+
+    [priceForeignInput, exchangeRateInput, shippingRateInput, weightInput, profitInput].forEach(input => {
+      input.addEventListener('input', calculate);
+    });
+
+    calculate();
+  </script>
+</body>
+</html>
