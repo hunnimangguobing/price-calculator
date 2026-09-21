@@ -9,7 +9,6 @@
       --bg: #f8fafc;
       --card-bg: #ffffff;
       --primary: #059669;
-      --primary-hover: #047857;
       --text: #1e293b;
       --muted: #64748b;
       --border: #cbd5e1;
@@ -122,24 +121,6 @@
       justify-content: space-between;
       margin-bottom: 0.25rem;
     }
-
-    .btn {
-      width: 100%;
-      margin-top: 1rem;
-      padding: 0.75rem;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .btn:hover {
-      background: var(--primary-hover);
-    }
   </style>
 </head>
 <body>
@@ -169,7 +150,7 @@
     <div class="form-group">
       <label for="shipping-rate">國際運費 (單價/公斤)</label>
       <div class="input-wrapper">
-        <input type="number" id="shipping-rate" step="any" placeholder="請輸入每公斤運費" value="200">
+        <input type="number" id="shipping-rate" step="any" placeholder="請輸入每公斤運費" value="160">
         <span class="unit">元/kg</span>
       </div>
     </div>
@@ -187,7 +168,7 @@
     <div class="form-group">
       <label for="profit">預期利潤</label>
       <div class="input-wrapper">
-        <input type="number" id="profit" step="any" placeholder="請輸入利潤金額" value="150">
+        <input type="number" id="profit" step="any" placeholder="請輸入利潤金額" value="100">
         <span class="unit">元</span>
       </div>
     </div>
@@ -212,8 +193,6 @@
         </div>
       </div>
     </div>
-
-    <button class="btn" onclick="copyResult()">複製定價與明細</button>
   </div>
 
   <script>
@@ -259,14 +238,6 @@
       baseCostTwEl.textContent = `$${Math.round(baseCostTW).toLocaleString()}`;
       shippingCostEl.textContent = `$${Math.round(shippingCost).toLocaleString()}`;
       profitValEl.textContent = `$${Math.round(profit).toLocaleString()}`;
-    }
-
-    function copyResult() {
-      const priceText = finalPriceEl.textContent;
-      const copyText = `預估報價：${priceText}`;
-      navigator.clipboard.writeText(copyText).then(() => {
-        alert('已複製：' + copyText);
-      });
     }
 
     [priceForeignInput, exchangeRateInput, shippingRateInput, weightInput, profitInput].forEach(input => {
